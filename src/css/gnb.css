@@ -1,0 +1,20 @@
+.gnbBar {
+    width: 100%;
+    height: 6.6rem;
+    background-color: #232E45;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: 8.8rem;
+}
+
+.TRP{
+    font-size: 2.8rem;
+    color: white;
+    font-weight: bold;
+}
+
+.right{
+    width: 25rem;
+    height: 100%;
+}
