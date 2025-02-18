@@ -1,0 +1,104 @@
+
+
+  .driveType{
+    width: 100%;
+    height: 7.8rem;
+    border-top: 0.8rem solid #E7EBF2;
+    margin-bottom: 1.1rem;
+  }
+
+  /* 🚀 차량 상태 탭 (운행, 미운행, 전체) */
+.tab-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 0.1rem solid #E7EBF2;
+  width: 100%;
+  gap: 2rem;
+}
+
+.tab-item {
+  position: relative;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #888; /* 기본 회색 */
+  display: flex;
+  align-items: center;
+}
+
+.tab-item .count {
+  margin-left: 0.5rem;
+}
+
+.tab-item.active {
+  height: 100%;
+  color: #000; /* 활성화된 탭: 검은색 */
+}
+
+.tab-item.active .count {
+  color: #4285f4; /* 숫자만 파란색 */
+}
+
+.underline {
+  position: absolute;
+  bottom: -0.2rem;
+  left: -10%;
+  width: 110%;
+  height: 0.3rem;
+  background-color: #4285f4;
+  border-radius: 0.3rem;
+}
+
+.scrollSection{
+  overflow-y: scroll;
+  height: calc(100% - 31.9rem);
+  width: 100%;
+}
+
+.slideDown{
+  width: 100%;
+  height: 100%;
+}
+
+.vehicleArticle{
+  padding-block: 1.8rem;
+  padding-inline: 2.4rem;
+  width: 100%;
+  height: 14.2rem;
+  border-block: 0.1rem solid black;
+}
+
+.vehicleArticle:hover{
+  background-color: #F4F6FF;
+}
+
+.vehicleArticle{
+  display: flex;
+}
+
+.vehicleArticle > div {
+  width: 50%;
+}
+
+.vehicleArticleArticleTr {
+  display: flex;
+}
+
+.vehicleArticleStatus{
+  padding: 0.4rem 0.8rem;
+  height: 2.4rem;
+  width: 5rem;
+  background-color: #848692;
+  color: white;
+  border: 0.4rem;
+  margin-right: 1rem;
+}
+
+.vehicleArticleArticleTr span{
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #1F2022;
+}

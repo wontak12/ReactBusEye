@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { FaBus, FaExclamationCircle } from "react-icons/fa"; // 아이콘 추가
-import "../css/sidebar.css"; // CSS 파일
+import alarmImg from "../images/alarm.png";
+import watchImg from "../images/watch.png";
+import settingImg from "../images/setting.png";
+import kmImg from "../images/km.png";
+
 
 function Sidebar() {
     const [activeTab, setActiveTab] = useState("status"); // 차량현황 or 이상 상태 관리
@@ -122,7 +126,19 @@ function Sidebar() {
             </div>
             <div class="scrollSection">
                 <div class="sideDown">
-                    <div class="vehicleArticle"></div>
+                    <div class="vehicleArticle">
+                        <div class="vehicleArticleArticle">
+                            <div class="vehicleArticleArticleTr">
+                                <div class="vehicleArticleStatus">미운행</div>
+                                <span>서울34이 3947</span>
+                            </div>
+                            <div class="vehicleArticleArticleTr">
+                                <img src={watchImg}></img>
+                            </div>
+                            <div class="vehicleArticleArticleTr"></div>
+                        </div>
+                        <div class="driveTime"></div>
+                    </div>
                 </div>
             </div>
             
