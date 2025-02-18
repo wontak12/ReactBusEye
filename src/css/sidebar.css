@@ -1,0 +1,212 @@
+.sideSection {
+    border-right: 0.1rem solid black;
+    height: calc(100vh - 6.6rem);
+    width: 46.8rem;
+    padding-top: 6rem;
+}   
+
+.sideUp{
+    /* border-bottom: 0.8rem solid #E7EBF2; */
+    height: 25.2rem;
+    display: flex;
+    flex-direction: column;
+    padding: 0 2rem 2rem 2rem;
+    gap: 1rem;
+}
+
+.sideUpArticle{
+    width: 100%;
+    height: calc(100% / 3);
+}
+
+.allVehicleStatus {
+    display: flex;
+}
+
+.allVehicleStatus > div {
+    width: calc(100% / 3);
+    height: 100%;
+}
+
+.borderRight{
+    border-right: 0.1rem solid #f1f1f1;
+}
+
+.countVehicleDiv{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.countVehicleDiv label {
+    font-size: 1.6rem;
+}
+
+.countVehicle{
+    font-size: 2.4rem;
+    color: #1F2022;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.vehicleSearchInput{
+    width: 100%;
+    height: 5.2rem;
+    background-color: #E7EBF2;
+    border: none;
+    font-size: 1.6rem;
+    padding: 1.4rem 1.2rem 1.4rem 1.2rem;
+}
+
+
+.vehicleSearch{
+    padding-inline: 1.7rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.vehicleStatus {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 0;
+  }
+  
+  .button-group {
+    height: 5.2rem;
+    display: flex;
+    border-radius: 2.5rem;
+    overflow: hidden;
+    width: 100%
+  }
+  
+  .tab-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 1.5rem;
+    font-size: 1.6rem;
+    font-weight: bold;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.3s ease;
+    color: #4285f4;
+  }
+  
+  .tab-button .icon {
+    height: 2rem;
+    width: 2rem;
+    margin-right: 0.6rem;
+  }
+  
+  .tab-button.warning {
+    color: #888;
+    border-radius: 2.5rem;
+  }
+  
+  .tab-button.active, .tab-button.active1 {
+    border: 0.1rem solid #4285f4;
+    background: white;
+    color: #4285f4;
+    border-radius: 2.5rem;
+  }
+
+  .tab-button.active{
+    right: -1.7rem;
+    z-index: 1;
+  }
+
+  .tab-button.active1 {
+    right: 1.7rem;
+    z-index: 1rem;
+  }
+  /* border-top-left-radius: 2.5rem;
+  border-top-right-radius: 2.5rem;
+  border-bottom-left-radius: 2.5rem;
+  border-bottom-right-radius: 2.5rem; */
+
+  .tab-button.inactive, .tab-button.inactive1 {
+    background: #f0f2f5; /* 비활성화된 버튼은 회색 배경 */
+    color: #888; /* 비활성화된 버튼 텍스트 색상 변경 */
+
+  }
+
+  .driveType{
+    width: 100%;
+    height: 7.8rem;
+    border-top: 0.8rem solid #E7EBF2;
+    margin-bottom: 1.1rem;
+  }
+
+  /* 🚀 차량 상태 탭 (운행, 미운행, 전체) */
+.tab-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 0.1rem solid #E7EBF2;
+  width: 100%;
+  gap: 2rem;
+}
+
+.tab-item {
+  position: relative;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #888; /* 기본 회색 */
+  display: flex;
+  align-items: center;
+}
+
+.tab-item .count {
+  margin-left: 0.5rem;
+}
+
+.tab-item.active {
+  height: 100%;
+  color: #000; /* 활성화된 탭: 검은색 */
+}
+
+.tab-item.active .count {
+  color: #4285f4; /* 숫자만 파란색 */
+}
+
+.underline {
+  position: absolute;
+  bottom: -0.2rem;
+  left: -10%;
+  width: 110%;
+  height: 0.3rem;
+  background-color: #4285f4;
+  border-radius: 0.3rem;
+}
+
+.scrollSection{
+  overflow-y: scroll;
+  height: calc(100% - 31.9rem);
+  width: 100%;
+}
+
+.slideDown{
+  width: 100%;
+  height: 100%;
+}
+
+.vehicleArticle{
+  padding-block: 1.8rem;
+  padding-inline: 2.4rem;
+  width: 100%;
+  height: 14.2rem;
+  border-block: 0.1rem solid black;
+}
+
+.vehicleArticle:hover{
+  background-color: #F4F6FF;
+}
