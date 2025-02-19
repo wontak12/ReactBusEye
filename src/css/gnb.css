@@ -15,6 +15,30 @@
 }
 
 .right{
-    width: 25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 20rem;
     height: 100%;
+}
+
+.right img{
+    height: 100%
+}
+
+.right img:first-child {
+    margin-right: 2rem;
+}
+
+.imgDiv{
+    display: flex;
+    align-items: center;
+    height: 2.4rem;
+}
+
+.name{
+    font-size: 1.6rem;
+    color: white;
+    font-weight: bold;
+    
 }

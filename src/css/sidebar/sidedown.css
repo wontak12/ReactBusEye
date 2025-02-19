@@ -131,3 +131,9 @@
 .vehicleArticleArticleTrTitle{
   color: #929292 !important;
 }
+
+.driveTime{
+  display: flex;
+  align-items: center;
+  padding-top: 4rem;
+}
