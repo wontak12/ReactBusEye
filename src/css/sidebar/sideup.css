@@ -2,7 +2,7 @@
     border-right: 0.1rem solid black;
     height: calc(100vh - 6.6rem);
     width: 46.8rem;
-    padding-top: 6rem;
+    padding-top: 3rem;
 }   
 
 .sideUp{
@@ -109,11 +109,18 @@
     border-radius: 2.5rem;
   }
   
-  .tab-button.active, .tab-button.active1 {
+  .tab-button.active {
     border: 0.1rem solid #4285f4;
     background: white;
     color: #4285f4;
     border-radius: 2.5rem;
+  }
+
+  .tab-button.active1{
+    border: 0.1rem solid #D42B5E;
+    color:#D42B5E;
+    border-radius: 2.5rem;
+    background: white;
   }
 
   .tab-button.active{
@@ -123,7 +130,7 @@
 
   .tab-button.active1 {
     right: 1.7rem;
-    z-index: 1rem;
+    z-index: 1;
   }
   /* border-top-left-radius: 2.5rem;
   border-top-right-radius: 2.5rem;
