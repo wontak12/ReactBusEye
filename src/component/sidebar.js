@@ -5,6 +5,7 @@ import watchImg from "../images/watch.png";
 import timeImg from "../images/time.png";
 import settingImg from "../images/setting.png";
 import kmImg from "../images/km1.png";
+import warningImg from "../images/warning.png";
 
 
 function Sidebar() {

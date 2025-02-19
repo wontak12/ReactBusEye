@@ -56,12 +56,36 @@ const KakaoMap = () => {
 
       console.log("✅ 카카오맵 생성 시작");
       const options = {
-        center: new window.kakao.maps.LatLng(37.24556478782187, 126.99232738201549),
-        level: 3,
+        center: new window.kakao.maps.LatLng(37.5651, 126.9784), // 서울시청역 중심
+        level: 3, // 확대 수준
       };
 
-      new window.kakao.maps.Map(container, options);
+      const map = new window.kakao.maps.Map(container, options);
       console.log("✅ 카카오맵 로드 완료");
+
+      // 🚀 서울시청역에 마커 추가
+      const markerPosition = new window.kakao.maps.LatLng(37.5651, 126.9784);
+      const imageSrc = "https://i.imgur.com/your-image.png"; // 원하는 이미지 URL
+      const imageSize = new window.kakao.maps.Size(40, 40); // 이미지 크기 (픽셀 단위)
+      const imageOption = { offset: new window.kakao.maps.Point(20, 40) }; // 중심점 조정
+
+      const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+      const marker = new window.kakao.maps.Marker({
+        position: markerPosition,
+        image: markerImage, // 이미지 적용
+        map: map,
+      });
+
+      // 📌 마커 클릭 시 "서울시청역" 표시
+      const infowindow = new window.kakao.maps.InfoWindow({
+        content: `<div style="padding:5px;">📍 서울시청역</div>`,
+      });
+
+      window.kakao.maps.event.addListener(marker, "click", () => {
+        infowindow.open(map, marker);
+      });
+
+      console.log("📍 서울시청역 마커 추가 완료");
     });
   };
 
