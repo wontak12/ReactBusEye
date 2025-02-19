@@ -13,3 +13,17 @@
     height: 100% !important;
   }
   
+
+  .info-box{
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    width: 12rem;
+    border: 0.2rem solid #AFBFFD;
+    border-radius: 0.8rem;
+    backdrop-filter: blur(0.4rem);
+    background-color: #ffffff;
+    height: 3.2rem;
+    font-size: 1.6rem;
+
+  }

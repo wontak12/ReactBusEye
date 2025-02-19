@@ -5,9 +5,11 @@ import './css/gnb.css';
 import './css/sidebar/sidedown.css';
 import './css/sidebar/sideup.css';
 import './css/kakaomap.css';
+import './css/calender.css';
 import Gnb from './component/gnb.js';
 import Sidebar from './component/sidebar.js';
 import KakaoMap from './component/kakaomap.js';
+import Calender from './component/calender.js';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -16,6 +18,7 @@ root.render(
     <Gnb />
     <div className="contentsBox">
       <Sidebar />
+      <Calender />
       <KakaoMap />
     </div>
   </>

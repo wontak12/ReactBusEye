@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import "../css/kakaomap.css"; // 스타일 적용
-
+import busIcon from "../images/busIcon.png";
 const KakaoMap = () => {
   useEffect(() => {
     const KAKAO_MAP_KEY = process.env.REACT_APP_KAKAOMAP_KEY;
@@ -65,9 +65,9 @@ const KakaoMap = () => {
 
       // 🚀 서울시청역에 마커 추가
       const markerPosition = new window.kakao.maps.LatLng(37.5651, 126.9784);
-      const imageSrc = "https://i.imgur.com/your-image.png"; // 원하는 이미지 URL
-      const imageSize = new window.kakao.maps.Size(40, 40); // 이미지 크기 (픽셀 단위)
-      const imageOption = { offset: new window.kakao.maps.Point(20, 40) }; // 중심점 조정
+      const imageSrc = busIcon; // 원하는 이미지 URL
+      const imageSize = new window.kakao.maps.Size(50, 50); // 이미지 크기 (픽셀 단위)
+      const imageOption = { offset: new window.kakao.maps.Point(28, 40) }; // 중심점 조정
 
       const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
       const marker = new window.kakao.maps.Marker({
@@ -76,14 +76,24 @@ const KakaoMap = () => {
         map: map,
       });
 
-      // 📌 마커 클릭 시 "서울시청역" 표시
-      const infowindow = new window.kakao.maps.InfoWindow({
-        content: `<div style="padding:5px;">📍 서울시청역</div>`,
-      });
+      // ✅ 차량 번호를 표시할 CustomOverlay 추가
+      const content = `
+        <div class="custom-overlay">
+          <div class="info-box">
+            차량번호
+          </div>
+        </div>
+      `;
 
-      window.kakao.maps.event.addListener(marker, "click", () => {
-        infowindow.open(map, marker);
-      });
+const overlay = new window.kakao.maps.CustomOverlay({
+  position: markerPosition,
+  content: content,
+  yAnchor: -0.5, // 마커보다 아래쪽에 위치 조정
+  map: map,
+});
+
+
+
 
       console.log("📍 서울시청역 마커 추가 완료");
     });
