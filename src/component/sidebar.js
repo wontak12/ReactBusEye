@@ -134,8 +134,12 @@ function Sidebar() {
                             </div>
                             <div class="vehicleArticleArticleTr">
                                 <img src={watchImg}></img>
+                                <span class="vehicleArticleArticleTrTitle">현재속도</span><span>43km/h</span>
                             </div>
-                            <div class="vehicleArticleArticleTr"></div>
+                            <div class="vehicleArticleArticleTr">
+                                <img src={kmImg}></img>
+                                <span class="vehicleArticleArticleTrTitle">운행거리</span><span>43km/h</span>
+                            </div>
                         </div>
                         <div class="driveTime"></div>
                     </div>
