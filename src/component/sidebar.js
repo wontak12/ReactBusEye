@@ -3,7 +3,7 @@ import { FaBus, FaExclamationCircle } from "react-icons/fa"; // 아이콘 추가
 import alarmImg from "../images/alarm.png";
 import watchImg from "../images/watch.png";
 import settingImg from "../images/setting.png";
-import kmImg from "../images/km.png";
+import kmImg from "../images/km1.png";
 
 
 function Sidebar() {
@@ -141,7 +141,12 @@ function Sidebar() {
                                 <span class="vehicleArticleArticleTrTitle">운행거리</span><span>43km/h</span>
                             </div>
                         </div>
-                        <div class="driveTime"></div>
+                        <div class="driveTime">
+                            <div class="vehicleArticleArticleTr">
+                                <img src={alarmImg}></img>
+                                <span class="vehicleArticleArticleTrTitle">운해시간</span><span>1시간 10분</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
