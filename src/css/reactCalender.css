@@ -1,0 +1,100 @@
+/* 📅 전체 캘린더 스타일 */
+.react-calendar {
+  width: 350px;
+  max-width: 100%;
+  background: white;
+  border: none;
+  font-family: "Arial", sans-serif;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* 📅 네비게이션 (이전/다음 달) */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.react-calendar__navigation button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  color: #222;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.react-calendar__navigation button:disabled {
+  color: #ccc;
+}
+
+/* 📅 요일 (일, 월, 화, ...) */
+.react-calendar__month-view__weekdays {
+  display: flex;
+  justify-content: space-around;
+  font-size: 14px;
+  font-weight: bold;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+/* 📅 날짜 스타일 */
+.react-calendar__tile {
+  border-radius: 50%; /* ❗ 원형 스타일 */
+  height: 40px;
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #222;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  border: none;
+}
+
+/* 📅 hover 시 효과 */
+.react-calendar__tile:hover {
+  background: rgba(0, 122, 255, 0.1);
+  border-radius: 50%;
+}
+
+/* 📅 오늘 날짜 */
+.react-calendar__tile--now {
+  background: rgba(0, 122, 255, 0.1);
+  color: #007aff;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+/* 📅 선택된 날짜 */
+.react-calendar__tile--active {
+  background: #007aff;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+/* 📅 특정 날짜 아래 점 찍기 */
+.marked-date {
+  position: relative;
+}
+
+.marked-date::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background-color: #007aff;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}

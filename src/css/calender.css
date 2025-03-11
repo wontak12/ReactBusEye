@@ -1,4 +1,220 @@
-.calender{
-  width: 30%;
-  height: 100%;  
+.calendar {
+
+  text-align: center;
+  border-right: 0.1rem solid black;
+  height: calc(100vh - 6.6rem);
+  width: 46.8rem;
+  padding-top: 3rem;
 }
+
+.calenderTitleTitle{
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.calenderArticle{
+  padding-inline: 2rem;
+  width: 100%;
+  height: 38.2rem;
+  border-bottom: 0.8rem solid #E7EBF2;
+}
+
+.header div {
+  font-size: 1.8rem;
+
+}
+
+.calenderArticle .weekdays, .calenderArticle .days{
+  font-size: 1.6rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+.header button {
+  color: #ACACAC;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-weight: bold;
+  color: gray;
+  padding-bottom: 5px;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.day {
+  padding: 10px;
+  border-radius: 50%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.day.selected {
+  background-color: #F4F6FF;
+  border-radius: 50%;
+  color: #4A69E4;
+}
+
+.day.disabled {
+  color: #ccc;
+}
+
+.close-icon {
+  margin-left: auto;
+  cursor: pointer;
+  position: relative;
+  width: 2rem;
+}
+
+.calenderTitle {
+  height: 2.5rem;
+  padding-inline: 2rem;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+
+.close-icon:before {
+  transform: rotate(45deg);
+}
+
+.close-icon::after {
+  transform: rotate(-45deg);
+}
+
+.close-icon:after, .close-icon:before {
+  background-color: #000;
+  content: "";
+  height: .2rem;
+  left: 0;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+}
+
+.vehicleStatusAndNum {
+  padding-inline: 2rem;
+}
+
+.vehicleStatusAndNum > div{
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 3.2rem;
+  background-color: #f4f6ff;
+  border: none;
+  border-radius: 0.8rem;
+  font-size: 1.8rem;
+  height: 5rem;
+  padding: 1.3rem 1.6rem;
+  width: 100%;
+}
+
+.statusBox {
+  align-items: center;
+  background-color: #1ca04b;
+  border-radius: .4rem;
+  color: #fff;
+  display: flex;
+  font-size: 1.2rem;
+  height: 100%;
+  justify-content: center;
+  margin-right: 0.9rem;
+  width: 5rem;
+  
+}
+
+.vehicleNumBox {
+  text-align: start;
+  font-size: 1.8rem;
+  font-weight: 500;
+  height: 100%;
+  width: calc(100% - 5rem);
+}
+
+.articleDispatch{
+  height: calc(100% - 50.1rem);
+  width: 100%;
+  padding: 2rem;
+}
+
+.articleDispatch{
+  border: 0.1rem solid #EEEEEE;
+  border-radius: 0.8rem;
+  width: 100%;
+  font-size: 1.6rem;
+}
+
+.dispatchTheadTable{
+  width: 100%;
+  height: 4rem;
+}
+
+.scrollDiv{
+  width: 100%;
+  height: calc(100% - 4rem);
+}
+
+.dispatchTheadTable{
+  background-color: #E7EBF2;
+  height: 4rem;
+  width: 100%;
+  border-top-left-radius: 0.8rem;
+  border-top-right-radius: 0.8rem;
+}
+
+.dispatchTbodyTable{
+  max-height: calc(100% - 4rem);
+  border-collapse: collapse;
+  height: auto;
+  width: 100%;
+  border: 0.1rem solid #eeeeee;
+}
+
+.dispatchTheadTable thead tr{
+  padding-right: 0.2rem;
+}
+
+.dispatchTheadTable thead tr td:nth-child(1), .dispatchTbodyTable tbody tr td:nth-child(1){
+  width: 13%;
+  border-right: 0.1rem solid #DEDEDE;
+}
+.dispatchTheadTable thead tr td:nth-child(2), .dispatchTbodyTable tbody tr td:nth-child(2){
+  width: 20%;
+  border-right: 0.1rem solid #DEDEDE;
+}
+.dispatchTheadTable thead tr td:nth-child(3), .dispatchTbodyTable tbody tr td:nth-child(3){
+  width: 20%;
+  border-right: 0.1rem solid #DEDEDE;
+}
+.dispatchTheadTable thead tr td:nth-child(4), .dispatchTbodyTable tbody tr td:nth-child(4){width: 47%;}
+
+.dispatchTbodyTable tr td {
+  height: 4rem !important;
+}
+
+.dispatchTbodyTable {
+  table-layout: fixed;
+}
+
+.dispatchTbodyTable tr td{
+  border-bottom: 0.1rem solid #dedede;
+}
+

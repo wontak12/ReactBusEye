@@ -76,24 +76,23 @@
 }
 
 .vehicleArticle{
-  display: flex;
   border-bottom: 0.1rem solid #F1F1F1;
 }
 
-.vehicleArticle > div {
-  width: 50%;
-}
 
 .vehicleArticleArticleTr {
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .vehicleArticleStatus{
+  text-align: center;
   padding: 0.4rem 0.8rem;
   height: 2.4rem;
-  width: 5rem;
+  width: 6rem;
   background-color: #848692;
   color: white;
   border: 0.4rem;
@@ -101,6 +100,7 @@
 }
 
 .vehicleArticleArticleTr span{
+
   font-size: 1.8rem;
   font-weight: bold;
   color: #1F2022;
@@ -121,7 +121,7 @@
 .vehicleArticleArticle{
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .vehicleArticleArticleTr img{
@@ -135,5 +135,36 @@
 .driveTime{
   display: flex;
   align-items: center;
-  padding-top: 4rem;
+
+}
+
+.sidebarFlex{
+  display: flex;
+}
+
+.sidebarFlex > div {
+  width: 50%;
+}
+
+.vehicleArticleStatus.running {
+  background-color: #1CA04B !important;
+  border-radius: 0.4rem;
+  width: 5rem;
+  height: 2.4rem;
+}
+
+.vehicleArticleStatus.notRunning {
+  background-color: #848692 !important;
+  border-radius: 0.4rem;
+  width: 5rem;
+  height: 2.4rem;
+}
+
+.vehicleArticle:hover{
+  background-color: #E7EBF2;
+}
+
+.vehicleSection p {
+  font-size: 2.4rem;
+  text-align: center;
 }
