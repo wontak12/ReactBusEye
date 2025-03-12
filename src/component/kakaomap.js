@@ -102,6 +102,7 @@ const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) =>
           image: markerImage,
           map: mapRef.current,
         });
+        // labelContent는 문자열 템플릿으로 생성합니다.
         const labelContent = `<div class="marker-label">${bus_number}</div>`;
         const labelOverlay = new window.kakao.maps.CustomOverlay({
           position,
@@ -144,6 +145,7 @@ const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) =>
     const position = new window.kakao.maps.LatLng(bus.latitude, bus.longitude);
     const content = document.createElement("div");
     content.className = "custom-overlay";
+    // 오버레이 콘텐츠는 템플릿 리터럴로 문자열을 생성합니다.
     content.innerHTML = `
       <div class="popup-box">
         <div class="busInfoBox">
@@ -158,14 +160,12 @@ const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) =>
             <div class="usInfoBoxArticleArticle">현재속도</div>
             <div class="usInfoBoxArticleArticle">${bus.speed || "0"} km</div>
           </div>
-
           <div class="busInfoBoxArticle">
             <div class="usInfoBoxArticleArticle">운전자명</div>
             <div class="usInfoBoxArticleArticle">${bus.speed || "0"} km/h</div>
             <div class="usInfoBoxArticleArticle">운행거리</div>
             <div class="usInfoBoxArticleArticle">${bus.distance || "0"} km</div>
           </div>
-
           <div class="busInfoBoxArticle">
             <div class="usInfoBoxArticleArticle">연락처</div>
             <div class="usInfoBoxArticleArticle">${bus.speed || "0"} km/h</div>
@@ -186,8 +186,14 @@ const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) =>
     overlayRef.current[bus.bus_id] = overlay;
 
     setTimeout(() => {
-      document.getElementById("closeOverlay").addEventListener("click", () => closeOverlay(bus.bus_id));
-      document.getElementById("openCalendarBtn").addEventListener("click", openCalendar);
+      const closeEl = document.getElementById("closeOverlay");
+      const calendarEl = document.getElementById("openCalendarBtn");
+      if (closeEl) {
+        closeEl.addEventListener("click", () => closeOverlay(bus.bus_id));
+      }
+      if (calendarEl) {
+        calendarEl.addEventListener("click", openCalendar);
+      }
     }, 100);
   };
 
@@ -197,7 +203,7 @@ const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) =>
     }
   };
 
-  // ✅ `drawArrowsOnPath` 함수 추가 ✅
+  // drawArrowsOnPath 함수: routePoints 배열을 선으로 그림
   const drawArrowsOnPath = (points) => {
     polylinesRef.current.forEach((pl) => pl.setMap(null));
     polylinesRef.current = [];
