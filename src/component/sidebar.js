@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, } from "react";
 import { FaBus, FaExclamationCircle } from "react-icons/fa"; // 아이콘 추가
 import watchImg from "../images/watch.png";
 import timeImg from "../images/time.png";
@@ -150,7 +150,6 @@ function Sidebar({ onVehicleSelect }) {
                 <div
                   className={`vehicleArticle ${vehicle.status === "운행" ? "runningVehicle" : ""}`}
                   key={index}
-                  onClick={() => onVehicleSelect(vehicle)}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="vehicleArticleArticleTr">
