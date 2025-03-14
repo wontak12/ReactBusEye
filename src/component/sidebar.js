@@ -151,6 +151,7 @@ function Sidebar({ onVehicleSelect }) {
                   className={`vehicleArticle ${vehicle.status === "운행" ? "runningVehicle" : ""}`}
                   key={index}
                   style={{ cursor: "pointer" }}
+                  onClick={() => onVehicleSelect(vehicle)}  // 차량 선택 시 부모에 알림
                 >
                   <div className="vehicleArticleArticleTr">
                     <div

@@ -23,8 +23,18 @@ const AppContainer = () => {
 
   // Sidebar에서 차량 클릭 시 호출되는 함수
   const handleVehicleSelect = (vehicle) => {
-    console.log("AppContainer: 차량 행 클릭:", vehicle);
-    setSelectedBus(vehicle);
+    console.log("Vehicle clicked:", vehicle);
+    if (selectedBus && selectedBus.bus_id === vehicle.bus_id) {
+      console.log("Same vehicle selected. Resetting selectedBus to force update.");
+      setSelectedBus(null);
+      setTimeout(() => {
+        setSelectedBus(vehicle);
+        console.log("New selectedBus set after reset:", vehicle);
+      }, 0);
+    } else {
+      setSelectedBus(vehicle);
+      console.log("New selectedBus set:", vehicle);
+    }
   };
 
   // (필요 시) KakaoMap에서 버스 클릭 시 달력을 열도록 하는 함수

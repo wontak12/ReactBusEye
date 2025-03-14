@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../css/kakaomap.css";
 import busIcon from "../images/busIcon.png";
-
+import NobusIcon from "../images/busIcon.png";
 import startIcon from "../images/출발.png";
 import arriveIcon from "../images/도착.png";
 
@@ -153,6 +153,11 @@ const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) =>
           return;
         }
       }
+      // 선택된 버스의 위도, 경도로 지도 중심 이동 및 확대 레벨 변경
+      const latLng = new window.kakao.maps.LatLng(busToShow.latitude, busToShow.longitude);
+      mapRef.current.setCenter(latLng);
+      mapRef.current.setLevel(2);
+  
       showPopup(busToShow);
     }
   }, [selectedBus]);
