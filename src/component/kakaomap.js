@@ -1,180 +1,251 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../css/kakaomap.css";
+
 import busIcon from "../images/busIcon.png";
-import NobusIcon from "../images/busIcon.png";
+import NoBusIcon from "../images/NoBusicon.png";
+
 import startIcon from "../images/출발.png";
 import arriveIcon from "../images/도착.png";
 
+import { getAccessToken, refreshAccessToken } from "../services/authService";
+
 const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) => {
-  const [buses, setBuses] = useState([]);
-  const mapRef = useRef(null);
-  const markersRef = useRef({});
-  const overlayRef = useRef({});
-  const labelRef = useRef({});
-  const polylinesRef = useRef([]); // 폴리라인 관리
-  const startEndMarkersRef = useRef([]);
+  const [buses, setBuses] = useState([]); // 최신 버스 데이터 (웹소켓 수신)
+  const mapRef = useRef(null);             // 카카오 맵 객체
+  const markersRef = useRef({});           // 마커 정보 { bus_id: kakao.maps.Marker }
+  const overlayRef = useRef({});           // 팝업 오버레이 { bus_id: kakao.maps.CustomOverlay }
+  const labelRef = useRef({});             // 라벨 오버레이 { bus_id: kakao.maps.CustomOverlay }
+  const polylinesRef = useRef([]);         // 운행 경로 폴리라인
+  const startEndMarkersRef = useRef([]);   // 출발/도착 마커
+  const socketRef = useRef(null);          // 웹소켓 객체
+
+  const WEBSOCKET_URL =
+    process.env.REACT_APP_WEBSOCKET_URL || "ws://104.197.230.228:8000/ws/dispatch/all";
 
   useEffect(() => {
     const KAKAO_MAP_KEY = process.env.REACT_APP_KAKAOMAP_KEY;
     if (!KAKAO_MAP_KEY) {
-      console.error("❌ 카카오 맵 API 키가 설정되지 않았습니다.");
+      console.error("❌ 카카오 맵 API 키가 없습니다.");
       return;
     }
+
     if (!document.getElementById("kakao-map-script")) {
       const script = document.createElement("script");
       script.id = "kakao-map-script";
       script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_KEY}&autoload=false`;
       script.async = true;
       document.head.appendChild(script);
+      console.log("[KakaoMap] Kakao Maps SDK 스크립트 추가됨");
 
       script.onload = () => {
         if (!window.kakao || !window.kakao.maps) {
-          console.error("❌ 카카오 API 로드 실패 (kakao.maps 없음)");
+          console.error("❌ kakao.maps가 없습니다.");
           return;
         }
         window.kakao.maps.load(() => {
-          loadKakaoMap();
-          // localStorage에 저장된 마지막 버스 데이터를 불러와 표시
-          const storedData = localStorage.getItem("lastBusData");
-          if (storedData) {
-            updateBuses(JSON.parse(storedData));
-          }
+          initMap();
+          loadLastBusData();
           connectWebSocket();
         });
       };
     } else {
       if (window.kakao && window.kakao.maps) {
         window.kakao.maps.load(() => {
-          loadKakaoMap();
-          const storedData = localStorage.getItem("lastBusData");
-          if (storedData) {
-            updateBuses(JSON.parse(storedData));
-          }
+          initMap();
+          loadLastBusData();
           connectWebSocket();
         });
       } else {
         console.error("❌ window.kakao 또는 window.kakao.maps가 준비되지 않음");
       }
     }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadKakaoMap = () => {
+  const initMap = () => {
     const container = document.getElementById("map");
     if (!container) {
-      console.error("❌ map 컨테이너(#map)를 찾을 수 없습니다.");
+      console.error("❌ #map 컨테이너 없음");
       return;
     }
     const options = {
       center: new window.kakao.maps.LatLng(37.24555802870491, 126.99230765874883),
-      level: 8, // 숫자가 클수록 축소된 상태입니다.
+      level: 8,
     };
     mapRef.current = new window.kakao.maps.Map(container, options);
-    console.log("✅ Kakao map 로드 완료:", mapRef.current);
+    console.log("[KakaoMap] 지도 초기화 완료:", mapRef.current);
   };
 
-  const connectWebSocket = () => {
-    const socket = new WebSocket("ws://104.197.230.228:8000/ws/dispatch/all");
-    socket.onopen = () => console.log("✅ WebSocket 연결됨");
+  const loadLastBusData = () => {
+    const storedData = localStorage.getItem("lastBusData");
+    if (storedData) {
+      try {
+        const parsed = JSON.parse(storedData);
+        if (Array.isArray(parsed)) {
+          setBuses(parsed);
+          console.log("[KakaoMap] 마지막 버스 데이터 불러옴:", parsed);
+          updateMarkers(parsed);
+        }
+      } catch (e) {
+        console.error("❌ lastBusData JSON 파싱 오류:", e);
+      }
+    }
+  };
+
+  const connectWebSocket = async () => {
+    // 현재 저장된 토큰 (로그인 시 발급되거나 재로그인 후 갱신된 토큰)
+    const token = getAccessToken();
+    console.log("[KakaoMap] 웹소켓 연결 시도, 토큰:", token);
+  
+    // 토큰을 쿼리 파라미터로 추가
+    const wsUrl = token ? `${WEBSOCKET_URL}?token=${token}` : WEBSOCKET_URL;
+    const socket = new WebSocket(wsUrl);
+    socketRef.current = socket;
+  
+    socket.onopen = () => {
+      console.log("✅ WebSocket 연결됨:", wsUrl);
+    };
     socket.onmessage = (event) => {
       try {
         let data = JSON.parse(event.data);
-        console.log("✅ WebSocket 메시지:", data);
+        console.log("[KakaoMap] 웹소켓 메시지 수신:", data);
         if (!Array.isArray(data)) data = [data];
-        updateBuses(data);
+        setBuses(data);
+        updateMarkers(data);
       } catch (error) {
-        console.error("❌ JSON 파싱 오류:", error);
+        console.error("❌ 웹소켓 메시지 JSON 파싱 오류:", error);
       }
     };
-    socket.onerror = (error) => console.error("❌ WebSocket 오류:", error);
-    socket.onclose = () => console.warn("⚠️ WebSocket 연결 종료됨. 마지막 위치를 유지합니다.");
+    socket.onerror = (error) => {
+      console.error("❌ 웹소켓 오류:", error);
+    };
+    socket.onclose = () => {
+      console.warn("⚠️ 웹소켓 연결 종료됨.");
+    };
   };
+  
+  // handleTokenRefresh 함수는 더 이상 사용하지 않고, 토큰 문제 발생 시 자동 로그아웃 처리됩니다.
+  
+  
+  // // 토큰 갱신이 필요할 때 호출 (예: 주기적 자동 갱신이나 오류 발생 시)
+  // async function handleTokenRefresh() {
+  //   const success = await refreshAccessToken();
+  //   if (success) {
+  //     // 토큰이 갱신되었으므로 기존 연결 종료 후 새 토큰으로 재연결
+  //     if (socketRef.current) socketRef.current.close();
+  //     connectWebSocket();
+  //   } else {
+  //     // 재발급 실패 시 추가 처리 (예: 로그아웃)
+  //   }
+  // }
+  
 
-  const updateBuses = (busData) => {
-    // 데이터가 없으면 업데이트하지 않음
-    if (!busData || busData.length === 0) {
-      console.log("새로운 버스 데이터 없음 - 기존 마커 유지");
-      return;
-    }
-    setBuses(busData);
-    // 최신 버스 데이터를 localStorage에 저장 (새로고침 시 유지)
-    localStorage.setItem("lastBusData", JSON.stringify(busData));
+  useEffect(() => {
+    updateMarkers(buses);
+  }, [buses]);
+
+  const updateMarkers = (busData) => {
     if (!mapRef.current) return;
     busData.forEach((bus) => {
-      const { bus_id, bus_number, latitude, longitude } = bus;
-      if (!bus_id || !latitude || !longitude || !bus_number) {
-        console.error("❌ 잘못된 버스 데이터:", bus);
+      const { bus_id, bus_number, latitude, longitude, status } = bus;
+      if (!bus_id || !latitude || !longitude) {
         return;
       }
-      const position = new window.kakao.maps.LatLng(latitude, longitude);
+      const pos = new window.kakao.maps.LatLng(latitude, longitude);
+      const icon = status === "미운행" ? NoBusIcon : busIcon;
+      const markerImage = new window.kakao.maps.MarkerImage(
+        icon,
+        new window.kakao.maps.Size(50, 50),
+        { offset: new window.kakao.maps.Point(25, 50) }
+      );
+
       if (markersRef.current[bus_id]) {
-        markersRef.current[bus_id].setPosition(position);
+        markersRef.current[bus_id].setPosition(pos);
+        markersRef.current[bus_id].setImage(markerImage);
         if (labelRef.current[bus_id]) {
-          labelRef.current[bus_id].setPosition(position);
+          labelRef.current[bus_id].setPosition(pos);
         }
       } else {
-        const markerImage = new window.kakao.maps.MarkerImage(
-          busIcon,
-          new window.kakao.maps.Size(50, 50),
-          { offset: new window.kakao.maps.Point(25, 50) }
-        );
         const marker = new window.kakao.maps.Marker({
-          position,
+          position: pos,
           image: markerImage,
           map: mapRef.current,
         });
-        // labelContent는 문자열 템플릿으로 생성
-        const labelContent = `<div class="marker-label">${bus_number}</div>`;
+        markersRef.current[bus_id] = marker;
+
+        const labelContent = `<div class="marker-label">${bus_number || ""}</div>`;
         const labelOverlay = new window.kakao.maps.CustomOverlay({
-          position,
+          position: pos,
           content: labelContent,
           yAnchor: 0.7,
           zIndex: -100000,
           map: mapRef.current,
         });
         labelRef.current[bus_id] = labelOverlay;
+
         window.kakao.maps.event.addListener(marker, "click", () => {
           setSelectedBus(bus);
           showPopup(bus);
         });
-        markersRef.current[bus_id] = marker;
       }
     });
   };
 
+  // 선택된 버스 변경 시 지도 이동 + 팝업 표시 (디버깅 로그 추가 및 위치 데이터 보완)
   useEffect(() => {
-    if (selectedBus && mapRef.current) {
-      let busToShow = selectedBus;
-      if (!busToShow.latitude || !busToShow.longitude) {
-        const found = buses.find((b) => b.bus_id === selectedBus.bus_id);
-        if (found) {
-          busToShow = found;
-        } else {
-          console.error("선택된 버스의 좌표 정보가 없습니다.");
-          return;
-        }
+    if (!selectedBus || !mapRef.current) return;
+
+    console.debug("[KakaoMap] selectedBus 변경 감지:", selectedBus);
+
+    let busData = selectedBus;
+    if (!selectedBus.latitude || !selectedBus.longitude) {
+      // 선택된 차량에 위치 정보가 없다면, 현재 buses 배열에서 찾아봅니다.
+      const foundBus = buses.find((b) => b.bus_id === selectedBus.bus_id);
+      if (foundBus && foundBus.latitude && foundBus.longitude) {
+        busData = foundBus;
+        console.debug("[KakaoMap] buses 배열에서 찾은 위치 데이터:", busData);
+      } else {
+        console.warn("[KakaoMap] 선택된 버스에 위치 데이터가 없습니다:", selectedBus);
+        return;
       }
-      // 선택된 버스의 위도, 경도로 지도 중심 이동 및 확대 레벨 변경
-      const latLng = new window.kakao.maps.LatLng(busToShow.latitude, busToShow.longitude);
-      mapRef.current.setCenter(latLng);
-      mapRef.current.setLevel(2);
-  
-      showPopup(busToShow);
     }
-  }, [selectedBus]);
+    const latLng = new window.kakao.maps.LatLng(
+      busData.latitude,
+      busData.longitude
+    );
+    console.debug("[KakaoMap] 지도 이동 좌표:", latLng);
+    mapRef.current.setCenter(latLng);
+    mapRef.current.setLevel(2);
+    showPopup(busData);
+  }, [selectedBus, buses]);
 
   const showPopup = (bus) => {
     if (!mapRef.current) return;
+
     if (overlayRef.current[bus.bus_id]) {
       overlayRef.current[bus.bus_id].setMap(null);
     }
+
     const position = new window.kakao.maps.LatLng(bus.latitude, bus.longitude);
+    const statusText = bus.status === "미운행" ? "미운행" : "운행";
+    const statusClass = bus.status === "미운행" ? "inactive" : "active";
+
     const content = document.createElement("div");
     content.className = "custom-overlay";
     content.innerHTML = `
       <div class="popup-box">
         <div class="busInfoBox">
           <div class="busInfoBoxTitle">
-            <div class="busInfoBoxStatus">운행</div>
+            <div class="busInfoBoxStatus ${statusClass}">
+              ${statusText}
+            </div>
             <div class="busInfoBoxNumber">${bus.bus_number || "차량번호 없음"}</div>
             <div class="close-icon" id="closeOverlay"></div>
           </div>
@@ -200,7 +271,7 @@ const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) =>
         <div class="calenderBtn" id="openCalendarBtn">운행경로</div>
       </div>
     `;
-    
+
     const overlay = new window.kakao.maps.CustomOverlay({
       position,
       content,
@@ -215,8 +286,8 @@ const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) =>
       if (closeEl) {
         closeEl.addEventListener("click", () => closeOverlay(bus.bus_id));
       }
-      if (calendarEl) {
-        calendarEl.addEventListener("click", openCalendar);
+      if (calendarEl && openCalendar) {
+        calendarEl.addEventListener("click", () => openCalendar());
       }
     }, 100);
   };
@@ -225,76 +296,73 @@ const KakaoMap = ({ selectedBus, setSelectedBus, openCalendar, routePoints }) =>
     if (overlayRef.current[busId]) {
       overlayRef.current[busId].setMap(null);
     }
-    if (polylinesRef.current && polylinesRef.current.length > 0) {
-      polylinesRef.current.forEach((pl) => pl.setMap(null));
-      polylinesRef.current = [];
-    }
-    if (startEndMarkersRef.current && startEndMarkersRef.current.length > 0) {
-      startEndMarkersRef.current.forEach((marker) => marker.setMap(null));
-      startEndMarkersRef.current = [];
-    }
+    polylinesRef.current.forEach((pl) => pl.setMap(null));
+    polylinesRef.current = [];
+    startEndMarkersRef.current.forEach((m) => m.setMap(null));
+    startEndMarkersRef.current = [];
   };
 
   const drawArrowsOnPath = (points) => {
-    // 기존 폴리라인 및 출발/도착 마커 제거
     polylinesRef.current.forEach((pl) => pl.setMap(null));
     polylinesRef.current = [];
-    startEndMarkersRef.current.forEach((marker) => marker.setMap(null));
+    startEndMarkersRef.current.forEach((m) => m.setMap(null));
     startEndMarkersRef.current = [];
-    if (!mapRef.current || points.length === 0) return;
 
-    // 각 구간을 그리면서 마지막 구간에서만 화살표 표시
+    if (!mapRef.current || points.length < 1) return;
+
     for (let i = 0; i < points.length - 1; i++) {
       const p1 = new window.kakao.maps.LatLng(points[i].latitude, points[i].longitude);
       const p2 = new window.kakao.maps.LatLng(points[i + 1].latitude, points[i + 1].longitude);
-      const isLastSegment = i === points.length - 2;
-      const segmentPolyline = new window.kakao.maps.Polyline({
+      const isLast = i === points.length - 2;
+      const line = new window.kakao.maps.Polyline({
         map: mapRef.current,
         path: [p1, p2],
         strokeWeight: 6,
         strokeColor: "#4A69E4",
         strokeOpacity: 0.9,
         strokeStyle: "solid",
-        endArrow: isLastSegment,
+        endArrow: isLast,
       });
-      polylinesRef.current.push(segmentPolyline);
+      polylinesRef.current.push(line);
     }
 
-    // 출발 마커 추가 (첫 좌표)
-    const startPoint = points[0];
-    const startPosition = new window.kakao.maps.LatLng(startPoint.latitude, startPoint.longitude);
+    const startPos = new window.kakao.maps.LatLng(points[0].latitude, points[0].longitude);
     const startMarkerImage = new window.kakao.maps.MarkerImage(
       startIcon,
       new window.kakao.maps.Size(50, 50),
       { offset: new window.kakao.maps.Point(25, 50) }
     );
     const startMarker = new window.kakao.maps.Marker({
-      position: startPosition,
+      position: startPos,
       image: startMarkerImage,
       map: mapRef.current,
     });
     startEndMarkersRef.current.push(startMarker);
 
-    // 도착 마커 추가 (좌표가 2개 이상인 경우)
     if (points.length > 1) {
-      const endPoint = points[points.length - 1];
-      const endPosition = new window.kakao.maps.LatLng(endPoint.latitude, endPoint.longitude);
+      const endPos = new window.kakao.maps.LatLng(
+        points[points.length - 1].latitude,
+        points[points.length - 1].longitude
+      );
       const arriveMarkerImage = new window.kakao.maps.MarkerImage(
         arriveIcon,
         new window.kakao.maps.Size(50, 50),
         { offset: new window.kakao.maps.Point(25, 50) }
       );
-      const arriveMarker = new window.kakao.maps.Marker({
-        position: endPosition,
+      const endMarker = new window.kakao.maps.Marker({
+        position: endPos,
         image: arriveMarkerImage,
         map: mapRef.current,
       });
-      startEndMarkersRef.current.push(arriveMarker);
+      startEndMarkersRef.current.push(endMarker);
     }
+   // 여기서 첫번째 좌표로 지도의 중심 이동 및 확대 적용
+   mapRef.current.setCenter(startPos);
+   mapRef.current.setLevel(3); // 숫자가 작을수록 확대 정도가 큽니다. 필요에 따라 값을 조절하세요.
   };
 
   useEffect(() => {
-    if (routePoints.length > 0) {
+    if (routePoints && routePoints.length > 0) {
       drawArrowsOnPath(routePoints);
     }
   }, [routePoints]);

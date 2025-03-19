@@ -1,3 +1,4 @@
+// src/index.js
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -10,40 +11,35 @@ import Gnb from "./component/gnb.js";
 import Sidebar from "./component/sidebar.js";
 import KakaoMap from "./component/kakaomap.js";
 import Calendar from "./component/calender.js";
+import Login from "./component/login.js"; // 로그인 컴포넌트
 import reportWebVitals from "./reportWebVitals";
 
 const AppContainer = () => {
-  // 사이드바와 캘린더 표시 상태
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [calendarVisible, setCalendarVisible] = useState(false);
-
-  // 선택된 버스와, Calendar에서 선택한 경로(routePoints)를 부모에서 관리
   const [selectedBus, setSelectedBus] = useState(null);
   const [routePoints, setRoutePoints] = useState([]);
+  // Sidebar와 KakaoMap에서 사용하는 탭 상태 (예: "운행", "미운행", "전체")
+  const [selectedTab, setSelectedTab] = useState("전체");
 
-  // Sidebar에서 차량 클릭 시 호출되는 함수
   const handleVehicleSelect = (vehicle) => {
     console.log("Vehicle clicked:", vehicle);
+    // 동일 차량 선택 시 강제 업데이트 (상태 재전달)
     if (selectedBus && selectedBus.bus_id === vehicle.bus_id) {
-      console.log("Same vehicle selected. Resetting selectedBus to force update.");
       setSelectedBus(null);
       setTimeout(() => {
         setSelectedBus(vehicle);
-        console.log("New selectedBus set after reset:", vehicle);
       }, 0);
     } else {
       setSelectedBus(vehicle);
-      console.log("New selectedBus set:", vehicle);
     }
   };
 
-  // (필요 시) KakaoMap에서 버스 클릭 시 달력을 열도록 하는 함수
   const handleOpenCalendar = () => {
     setCalendarVisible(true);
     setSidebarVisible(false);
   };
 
-  // 달력 닫기 시 사이드바로 복귀
   const handleCloseCalendar = () => {
     setCalendarVisible(false);
     setSidebarVisible(true);
@@ -54,7 +50,11 @@ const AppContainer = () => {
       <Gnb />
       <div className="contentsBox">
         {sidebarVisible && (
-          <Sidebar onVehicleSelect={handleVehicleSelect} />
+          <Sidebar
+            onVehicleSelect={handleVehicleSelect}
+            selectedTab={selectedTab}
+            onTabChange={setSelectedTab}
+          />
         )}
         {calendarVisible && (
           <Calendar
@@ -69,12 +69,32 @@ const AppContainer = () => {
           setSelectedBus={setSelectedBus}
           openCalendar={handleOpenCalendar}
           routePoints={routePoints}
+          selectedTab={selectedTab} // 탭 상태 전달
         />
       </div>
     </>
   );
 };
 
+// Root 컴포넌트: localStorage에 access_token이 있으면 로그인된 것으로 간주
+const Root = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem("access_token")
+  );
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    console.log("[Root] 로그인 성공, 토큰 유지");
+  };
+
+  return isAuthenticated ? <AppContainer /> : <Login onLoginSuccess={handleLoginSuccess} />;
+};
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<AppContainer />);
+root.render(
+  <React.StrictMode>
+    <Root />
+  </React.StrictMode>
+);
+
 reportWebVitals();
