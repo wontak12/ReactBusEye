@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { format, addDays, startOfMonth, startOfWeek, isSameMonth, isSameDay } from "date-fns";
 
-const Calendar = ({ selectedBus, setCalendarVisible, closeCalendar, onRouteSelect }) => {
+const Calendar = ({ selectedBus, busOpStatus, setCalendarVisible, closeCalendar, onRouteSelect }) => {
   // 날짜 관련 state
-  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 2, 1));
-  const [selectedDate, setSelectedDate] = useState(new Date(2025, 2, 7));
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [dispatchList, setDispatchList] = useState([]);
   const [routeHistory, setRouteHistory] = useState([]);
-  // 버스 상태를 저장할 state ("운행" 또는 "미운행" 등)
-  const [busStatus, setBusStatus] = useState("");
+
+  // 전달받은 busOpStatus를 이용해 선택된 버스의 상태 표시 (운행/미운행)
+  const currentBusStatus = selectedBus && busOpStatus && busOpStatus[selectedBus.bus_id]
+    ? busOpStatus[selectedBus.bus_id]
+    : "운행";
 
   // 실제 Django 서버 주소 (필요에 따라 수정)
   const API_BASE_URL = "http://104.197.230.228:8000";
@@ -41,8 +44,6 @@ const Calendar = ({ selectedBus, setCalendarVisible, closeCalendar, onRouteSelec
           setDispatchList([]);
           setRouteHistory([]);
           if (onRouteSelect) onRouteSelect([]);
-          // status 초기화 또는 기본값
-          setBusStatus(selectedBus?.status || "운행");
           return;
         } else {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -50,13 +51,6 @@ const Calendar = ({ selectedBus, setCalendarVisible, closeCalendar, onRouteSelec
       }
       const data = await res.json();
       console.log("응답 데이터:", data);
-
-      // 서버 응답에 status 필드가 있다면 저장, 없다면 선택된 버스의 status 사용
-      if (data.status) {
-        setBusStatus(data.status);
-      } else {
-        setBusStatus(selectedBus?.status || "운행");
-      }
 
       if (data.result === "true" && Array.isArray(data.data) && data.data.length > 0) {
         setDispatchList(data.data);
@@ -73,7 +67,6 @@ const Calendar = ({ selectedBus, setCalendarVisible, closeCalendar, onRouteSelec
       setDispatchList([]);
       setRouteHistory([]);
       if (onRouteSelect) onRouteSelect([]);
-      setBusStatus(selectedBus?.status || "운행");
     }
   };
 
@@ -139,22 +132,21 @@ const Calendar = ({ selectedBus, setCalendarVisible, closeCalendar, onRouteSelec
 
       <div className="vehicleStatusAndNum">
         <div>
-          {/* 상태 표시 박스: busStatus 값에 따라 배경색 변경 */}
+          {/* 전달받은 운행 상태(currentBusStatus)를 표시 */}
           <div
             className="statusBox"
             style={{
-              backgroundColor: busStatus === "미운행" ? "#848692" : "#1CA04B",
-              color: "#fff", // 글자색은 흰색으로 설정 (필요 시)
+              backgroundColor: currentBusStatus === "미운행" ? "#848692" : "#1CA04B",
+              color: "#fff",
             }}
           >
-            {busStatus}
+            {currentBusStatus}
           </div>
           <div className="vehicleNumBox">
             {selectedBus ? selectedBus.bus_number : "차량번호 정보 없음"}
           </div>
         </div>
       </div>
-
 
       <div className="calenderArticle">
         <div className="header">

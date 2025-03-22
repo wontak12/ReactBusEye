@@ -95,7 +95,7 @@
   align-items: center;
   color: white;
   background-color: #1ca04b;
-  width: 5rem;
+  width: 7rem;
   height: 100%;
   border-radius: 0.4rem;
   margin-right: 1rem;
@@ -141,4 +141,23 @@
 .calendarX{
   height: 100%;
   margin-left: auto;
+}
+
+.marker-label.yes {
+  border: 0.2rem solid #AFBFFD;
+  backdrop-filter: blur(4px);
+
+}
+
+.marker-label.no {
+  border: 0.2rem solid #DEDEDE;
+  backdrop-filter: none;
+}
+
+.busInfoBoxTitle .운행 {
+  background-color: #1ca04b;  
+}
+
+.busInfoBoxTitle .미운행 {
+  background-color:#929292;  
 }
