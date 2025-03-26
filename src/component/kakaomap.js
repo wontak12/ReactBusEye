@@ -436,8 +436,40 @@ const KakaoMap = forwardRef(({
   }));
 
   useEffect(() => {
+    if (!selectedBus) return;
+  
+    const busIdStr = String(selectedBus.bus_id);
+    const overlay = overlayRef.current[busIdStr];
+    const newStatus = busOpStatus[busIdStr] || "미운행";
+  
+    if (overlay && overlay.getContent) {
+      const content = overlay.getContent(); // DOM element
+      const statusDiv = content.querySelector(".busInfoBoxStatus");
+      if (statusDiv) {
+        statusDiv.textContent = newStatus;
+        statusDiv.className = `busInfoBoxStatus ${newStatus}`;
+      }
+    }
+  }, [busOpStatus, selectedBus]);
+  
+
+  useEffect(() => {
     drawArrowsOnPath(routePoints);
   }, [routePoints]);
+
+  useEffect(() => {
+    if (!selectedBus || !mapRef.current) return;
+  
+    const busIdStr = String(selectedBus.bus_id);
+    const overlay = overlayRef.current[busIdStr];
+    const bus = buses.find((b) => b && String(b.bus_id) === busIdStr);
+  
+    if (overlay && bus && bus.latitude && bus.longitude) {
+      const pos = new window.kakao.maps.LatLng(bus.latitude, bus.longitude);
+      overlay.setPosition(pos); // 오버레이 위치 갱신
+      mapRef.current.setCenter(pos); // (원하는 경우) 지도도 이동
+    }
+  }, [buses, selectedBus]);
 
   return (
     <div className="kakaomap" style={{ backgroundColor: "#eee" }}>
