@@ -1,121 +1,122 @@
+// Calendar.js
 import React, { useState, useEffect } from "react";
-import { format, addDays, startOfMonth, startOfWeek, isSameMonth, isSameDay } from "date-fns";
+import {
+  format,
+  addDays,
+  startOfMonth,
+  startOfWeek,
+  isSameMonth,
+  isSameDay,
+} from "date-fns";
 
-const Calendar = ({ selectedBus, busOpStatus, setCalendarVisible, closeCalendar, onRouteSelect }) => {
-  // 날짜 관련 state
+const Calendar = ({
+  selectedBus,
+  busOpStatus,
+  setCalendarVisible,
+  closeCalendar,
+  onRouteSelect,
+}) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dispatchList, setDispatchList] = useState([]);
   const [routeHistory, setRouteHistory] = useState([]);
+  const [dispatchDays, setDispatchDays] = useState([]);
 
-  // 전달받은 busOpStatus를 이용해 선택된 버스의 상태 표시 (운행/미운행)
-  const currentBusStatus = selectedBus && busOpStatus && busOpStatus[selectedBus.bus_id]
-    ? busOpStatus[selectedBus.bus_id]
-    : "운행";
+  const currentBusStatus =
+    selectedBus && busOpStatus && busOpStatus[selectedBus.bus_id]
+      ? busOpStatus[selectedBus.bus_id]
+      : "미운행"; // 웹소켓에서 수신 없으면 기본값 미운행
 
-  // 실제 Django 서버 주소 (필요에 따라 수정)
   const API_BASE_URL = "http://104.197.230.228:8000";
 
-  // selectedBus 또는 selectedDate 변경 시 배차정보 재조회
   useEffect(() => {
-    console.log("[Calendar] selectedBus:", selectedBus);
-    console.log("[Calendar] selectedDate:", selectedDate);
     if (selectedBus && selectedBus.bus_id) {
       fetchDispatchList(selectedBus.bus_id, selectedDate);
-    } else {
-      console.warn("selectedBus 또는 bus_id가 없습니다.");
     }
   }, [selectedBus, selectedDate]);
 
-  const fetchDispatchList = async (busId, date) => {
-    if (!busId) {
-      console.warn("busId가 없습니다. 요청 중단.");
-      return;
+  useEffect(() => {
+    if (selectedBus && selectedBus.bus_id) {
+      fetchDispatchDays(selectedBus.bus_id, currentMonth);
     }
+  }, [selectedBus, currentMonth]);
+
+  const fetchDispatchList = async (busId, date) => {
     try {
       const formattedDate = format(date, "yyyy-MM-dd");
-      const requestUrl = `${API_BASE_URL}/monitoring/vehicle/location-history?bus_id=${encodeURIComponent(busId)}&date=${formattedDate}`;
-      console.log("requestUrl:", requestUrl);
-
+      const requestUrl = `${API_BASE_URL}/monitoring/vehicle/location-history?bus_id=${busId}&date=${formattedDate}`;
       const res = await fetch(requestUrl);
       if (!res.ok) {
-        if (res.status === 404) {
-          console.warn("404 Not Found: 해당 날짜에 배차 정보가 없습니다.");
-          setDispatchList([]);
-          setRouteHistory([]);
-          if (onRouteSelect) onRouteSelect([]);
-          return;
-        } else {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-      }
-      const data = await res.json();
-      console.log("응답 데이터:", data);
-
-      if (data.result === "true" && Array.isArray(data.data) && data.data.length > 0) {
-        setDispatchList(data.data);
-        setRouteHistory([]);
-        if (onRouteSelect) onRouteSelect([]);
-      } else {
-        console.warn("배차 데이터가 없습니다:", data);
         setDispatchList([]);
         setRouteHistory([]);
-        if (onRouteSelect) onRouteSelect([]);
+        onRouteSelect?.([]);
+        return;
+      }
+      const data = await res.json();
+      if (data.result === "true" && Array.isArray(data.data)) {
+        setDispatchList(data.data);
+        setRouteHistory([]);
+        onRouteSelect?.([]);
+      } else {
+        setDispatchList([]);
+        setRouteHistory([]);
+        onRouteSelect?.([]);
       }
     } catch (error) {
-      console.error("API 호출 실패:", error);
+      console.error("fetchDispatchList 에러:", error);
       setDispatchList([]);
       setRouteHistory([]);
-      if (onRouteSelect) onRouteSelect([]);
+      onRouteSelect?.([]);
     }
   };
 
-  const nextMonth = () => {
-    console.log("현재 month:", currentMonth);
-    setCurrentMonth(addDays(currentMonth, 31));
-  };
-
-  const prevMonth = () => {
-    console.log("현재 month:", currentMonth);
-    setCurrentMonth(addDays(currentMonth, -31));
+  const fetchDispatchDays = async (busId, monthDate) => {
+    try {
+      const formattedMonth = format(monthDate, "yyyy-MM");
+      const requestUrl = `${API_BASE_URL}/monitoring/vehicle/dispatch-status?bus_id=${busId}&date=${formattedMonth}`;
+      const res = await fetch(requestUrl);
+      const data = await res.json();
+      if (data.result === "true" && Array.isArray(data.data)) {
+        setDispatchDays(data.data);
+      } else {
+        setDispatchDays([]);
+      }
+    } catch (error) {
+      console.error("fetchDispatchDays 에러:", error);
+      setDispatchDays([]);
+    }
   };
 
   const handleDateClick = (day) => {
-    console.log("선택된 날짜:", day);
     setSelectedDate(day);
     if (selectedBus && selectedBus.bus_id) {
       fetchDispatchList(selectedBus.bus_id, day);
     }
   };
 
+  // 부모에서 전달받은 closeCalendar 함수를 그대로 사용
   const handleCloseCalendar = () => {
-    console.log("캘린더 닫기");
-    if (closeCalendar) closeCalendar();
+    closeCalendar?.();
   };
 
   const handleRouteClick = (dispatchId) => {
-    console.log("dispatchId:", dispatchId);
     const selectedDispatch = dispatchList.find(
       (dispatch) => dispatch.dispatch_id === dispatchId
     );
-    console.log("selectedDispatch:", selectedDispatch);
     if (
       selectedDispatch &&
-      Array.isArray(selectedDispatch.location_history) &&
-      selectedDispatch.location_history.length > 0
+      Array.isArray(selectedDispatch.location_history)
     ) {
       const routePoints = selectedDispatch.location_history.map((pt) => ({
         latitude: pt.latitude,
         longitude: pt.longitude,
         timestamp: pt.timestamp,
       }));
-      console.log("routePoints:", routePoints);
       setRouteHistory(routePoints);
-      if (onRouteSelect) onRouteSelect(routePoints);
+      onRouteSelect?.(routePoints);
     } else {
-      console.warn("이동 경로가 없습니다.");
       setRouteHistory([]);
-      if (onRouteSelect) onRouteSelect([]);
+      onRouteSelect?.([]);
     }
   };
 
@@ -123,16 +124,11 @@ const Calendar = ({ selectedBus, busOpStatus, setCalendarVisible, closeCalendar,
     <div className="calendar" id="calendar">
       <div className="calenderTitle">
         <div className="calenderTitleTitle">운행 경로</div>
-        <div
-          className="close-icon"
-          onClick={handleCloseCalendar}
-          style={{ cursor: "pointer" }}
-        />
+        <div className="close-icon" onClick={handleCloseCalendar} />
       </div>
 
       <div className="vehicleStatusAndNum">
         <div>
-          {/* 전달받은 운행 상태(currentBusStatus)를 표시 */}
           <div
             className="statusBox"
             style={{
@@ -150,9 +146,13 @@ const Calendar = ({ selectedBus, busOpStatus, setCalendarVisible, closeCalendar,
 
       <div className="calenderArticle">
         <div className="header">
-          <button onClick={prevMonth}>&lt; 이전달</button>
+          <button onClick={() => setCurrentMonth(addDays(currentMonth, -31))}>
+            &lt; 이전달
+          </button>
           <div>{format(currentMonth, "yyyy년 MM월")}</div>
-          <button onClick={nextMonth}>다음달 &gt;</button>
+          <button onClick={() => setCurrentMonth(addDays(currentMonth, 31))}>
+            다음달 &gt;
+          </button>
         </div>
         <div className="weekdays">
           {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
@@ -164,13 +164,20 @@ const Calendar = ({ selectedBus, busOpStatus, setCalendarVisible, closeCalendar,
         <div className="days">
           {Array.from({ length: 42 }).map((_, index) => {
             const day = addDays(startOfWeek(startOfMonth(currentMonth)), index);
+            const isDispatchDay =
+              isSameMonth(day, currentMonth) &&
+              dispatchDays.includes(day.getDate());
+
             return (
               <div
                 key={index}
-                className={`day ${!isSameMonth(day, currentMonth) ? "disabled" : ""} ${isSameDay(day, selectedDate) ? "selected" : ""}`}
+                className={`day ${!isSameMonth(day, currentMonth) ? "disabled" : ""} ${
+                  isSameDay(day, selectedDate) ? "selected" : ""
+                }`}
                 onClick={() => handleDateClick(day)}
               >
                 {format(day, "d")}
+                {isDispatchDay && <div className="dot" />}
               </div>
             );
           })}

@@ -61,7 +61,7 @@
 }
 
 .day {
-  padding: 10px;
+  padding: 0.5rem;
   border-radius: 50%;
   text-align: center;
   cursor: pointer;
@@ -218,3 +218,11 @@
   border-bottom: 0.1rem solid #dedede;
 }
 
+/* 🔵 배차 동그라미 표시용 */
+.dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  background-color: #4A69E4;
+  border-radius: 50%;
+  margin: 0.2rem auto 0;
+}

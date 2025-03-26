@@ -27,7 +27,9 @@ function Sidebar({ onVehicleSelect, selectedTab, onTabChange, buses, busOpStatus
     if (!vehicles.length) return;
 
     const liveMap = {};
-    buses.forEach((b) => { liveMap[b.bus_id] = b; });
+    buses.filter(Boolean).forEach((b) => {
+      if (b.bus_id) liveMap[b.bus_id] = b;
+    });
 
     const updated = vehicles.map((v) => {
       const live = liveMap[v.bus_id];
@@ -74,14 +76,22 @@ function Sidebar({ onVehicleSelect, selectedTab, onTabChange, buses, busOpStatus
   return (
     <div className="sideSection" id="sideSection">
       <div className="sideUp">
-        <div className="allVehicleStatus sideUpArticle">
-          {["전체", "운행", "미운행"].map((type, i) => (
-            <div key={i} className={`countVehicleDiv ${i < 2 ? "borderRight" : ""}`}>
-              <div className="countVehicle">{vehicleData[type]}</div>
-              <label>{type}</label>
-            </div>
-          ))}
-        </div>
+      <div className="allVehicleStatus sideUpArticle">
+      {["전체", "운행", "미운행"].map((type, i) => {
+        const isActive = selectedInnerTab === type; // 현재 선택된 탭인지 여부
+        return (
+          <div
+            key={i}
+            className={`countVehicleDiv ${i < 2 ? "borderRight" : ""} ${isActive ? "active" : ""}`}
+            onClick={() => handleInnerTabChange(type)}
+            style={{ cursor: "pointer" }} // 클릭 가능함을 명시적으로 표시
+          >
+            <div className="countVehicle">{vehicleData[type]}</div>
+            <label>{type}</label>
+          </div>
+        );
+      })}
+    </div>
 
         <div className="vehicleSearch sideUpArticle">
           <input
@@ -102,7 +112,7 @@ function Sidebar({ onVehicleSelect, selectedTab, onTabChange, buses, busOpStatus
             </button>
             <button
               className={`tab-button ${activeTab === "alert" ? "active1" : "inactive1"}`}
-              onClick={() => setActiveTab("alert")}
+              // onClick={() => setActiveTab("alert")}
             >
               <FaExclamationCircle className="icon warning" /> 이상
             </button>
@@ -112,7 +122,7 @@ function Sidebar({ onVehicleSelect, selectedTab, onTabChange, buses, busOpStatus
 
       <div className="driveType">
         <div className="tab-container">
-          {["운행", "미운행", "전체"].map((tab) => (
+          {["전체", "운행", "미운행"].map((tab) => (
             <div
               key={tab}
               className={`tab-item ${selectedInnerTab === tab ? "active" : ""}`}

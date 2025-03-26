@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import "./css/gnb.css";
@@ -6,26 +6,27 @@ import "./css/sidebar/sidedown.css";
 import "./css/sidebar/sideup.css";
 import "./css/kakaomap.css";
 import "./css/calender.css";
+import "./css/login.css";
 import Gnb from "./component/gnb.js";
 import Sidebar from "./component/sidebar.js";
 import KakaoMap from "./component/kakaomap.js";
 import Calendar from "./component/calender.js";
 import Login from "./component/login.js";
 import reportWebVitals from "./reportWebVitals";
+import { startAutoLogout } from "./services/authService";
 
 const AppContainer = () => {
-  // 화면 전환, 선택된 버스, 탭, 이동경로 등
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [selectedBus, setSelectedBus] = useState(null);
   const [routePoints, setRoutePoints] = useState([]);
   const [selectedTab, setSelectedTab] = useState("전체");
-  
-  // 웹소켓 연결 상태 및 버스 데이터/운행 상태는 상위에서 관리
   const [isConnected, setIsConnected] = useState(false);
   const [buses, setBuses] = useState([]);
-  // busOpStatus: { [bus_id]: "운행" 또는 "미운행" }
   const [busOpStatus, setBusOpStatus] = useState({});
+
+  // KakaoMap 내부 함수에 접근하기 위한 ref 선언
+  const kakaoMapRef = useRef(null);
 
   const handleVehicleSelect = (vehicle) => {
     console.log("Vehicle clicked:", vehicle);
@@ -33,9 +34,13 @@ const AppContainer = () => {
       setSelectedBus(null);
       setTimeout(() => {
         setSelectedBus(vehicle);
+        setCalendarVisible(true);
+        setSidebarVisible(false);
       }, 0);
     } else {
       setSelectedBus(vehicle);
+      setCalendarVisible(true);
+      setSidebarVisible(false);
     }
   };
 
@@ -44,12 +49,15 @@ const AppContainer = () => {
     setSidebarVisible(false);
   };
 
+  // Calendar의 X 버튼 클릭 시 호출 – KakaoMap의 closeAllOverlays() 실행 후 캘린더 숨김
   const handleCloseCalendar = () => {
+    if (kakaoMapRef.current) {
+      kakaoMapRef.current.closeAllOverlays();
+    }
     setCalendarVisible(false);
     setSidebarVisible(true);
     setRoutePoints([]);
   };
-
 
   return (
     <>
@@ -66,15 +74,15 @@ const AppContainer = () => {
         )}
         {calendarVisible && (
           <Calendar
-          
             selectedBus={selectedBus}
             busOpStatus={busOpStatus}
             setCalendarVisible={setCalendarVisible}
-            closeCalendar={handleCloseCalendar}
+            closeCalendar={handleCloseCalendar}  // 부모의 closeCalendar 전달
             onRouteSelect={setRoutePoints}
           />
         )}
         <KakaoMap
+          ref={kakaoMapRef}  // ref를 통해 KakaoMap 내부 함수 접근
           isConnected={isConnected}
           setIsConnected={setIsConnected}
           selectedBus={selectedBus}
@@ -93,16 +101,36 @@ const AppContainer = () => {
 };
 
 const Root = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem("access_token")
-  );
+  useEffect(() => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user_info");
+  }, []);
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const handleUserActivity = () => {
+      startAutoLogout();
+    };
+
+    window.addEventListener("click", handleUserActivity);
+    return () => {
+      window.removeEventListener("click", handleUserActivity);
+    };
+  }, []);
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
     console.log("[Root] 로그인 성공, 토큰 유지");
+    startAutoLogout();
   };
 
-  return isAuthenticated ? <AppContainer /> : <Login onLoginSuccess={handleLoginSuccess} />;
+  return isAuthenticated ? (
+    <AppContainer />
+  ) : (
+    <Login onLoginSuccess={handleLoginSuccess} />
+  );
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

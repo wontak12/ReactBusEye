@@ -1,34 +1,34 @@
-// src/component/login.js
 import React, { useState } from "react";
-import { login as authLogin } from "../services/authService"; // authService.js의 login 함수를 가져옴
+import { login as authLogin, startAutoLogout } from "../services/authService";
+
 
 function Login({ onLoginSuccess }) {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("[Login] handleSubmit 호출");
-    console.log("[Login] 입력값 userId:", userId, " / password:", password);
+    console.log("[Login] 로그인 요청");
 
-    // authService.js의 login 함수를 호출합니다.
     const result = await authLogin(userId, password);
+
     if (result.success) {
-      console.log("[Login] 로그인 성공, 토큰 저장 완료, onLoginSuccess 호출");
+      console.log("[Login] 로그인 성공");
+      startAutoLogout();
       onLoginSuccess();
     } else {
       console.error("[Login] 로그인 실패:", result.error);
       setError("로그인 실패: " + result.error);
     }
-  }
+  };
 
   return (
-    <div style={{ margin: "50px", textAlign: "center" }}>
-      <h2>로그인</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
+    <div className="login-container">
+      <h2 className="login-title">로그인</h2>
+      {error && <p className="login-error">{error}</p>}
+      <form onSubmit={handleSubmit} className="login-form">
+        <div className="login-field">
           <label>아이디</label>
           <input
             type="text"
@@ -38,7 +38,7 @@ function Login({ onLoginSuccess }) {
             autoComplete="username"
           />
         </div>
-        <div style={{ marginTop: "10px" }}>
+        <div className="login-field">
           <label>비밀번호</label>
           <input
             type="password"
@@ -48,7 +48,7 @@ function Login({ onLoginSuccess }) {
             autoComplete="current-password"
           />
         </div>
-        <button type="submit" style={{ marginTop: "10px" }}>
+        <button type="submit" className="login-button">
           로그인
         </button>
       </form>

@@ -1,0 +1,66 @@
+/* src/component/Login.css */
+
+.login-container {
+    max-width: 30rem;
+    margin: 5rem auto;
+    padding: 3rem;
+    text-align: center;
+    background-color: #f8f8f8;
+    border-radius: 1rem;
+    box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.1);
+    font-family: "Noto Sans KR", sans-serif;
+  }
+  
+  .login-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    font-weight: bold;
+  }
+  
+  .login-error {
+    color: red;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .login-field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1.4rem;
+  }
+  
+  .login-field label {
+    margin-bottom: 0.5rem;
+  }
+  
+  .login-field input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.4rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+  }
+  
+  .login-button {
+    padding: 1rem;
+    font-size: 1.6rem;
+    background-color: #4A69E4;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .login-button:hover {
+    background-color: #B00020;
+  }
+  

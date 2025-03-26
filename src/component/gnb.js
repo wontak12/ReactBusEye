@@ -11,7 +11,7 @@ function Gnb(){
                         <img src={alarmImg}></img>
                         <img src={settingImg}></img>
                     </div>
-                    <div className="name">김원탁</div>
+                    <div className="name"></div>
                     
 
                 </div>
