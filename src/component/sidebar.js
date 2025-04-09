@@ -13,7 +13,7 @@ function Sidebar({ onVehicleSelect, selectedTab, onTabChange, buses, busOpStatus
 
   // 1. 최초에 전체 차량 목록 불러오기
   useEffect(() => {
-    const API_URL = `http://104.197.230.228:8000/monitoring/vehicle/list`;
+    const API_URL = process.env.REACT_APP_LIST_URL;
     fetch(API_URL)
       .then((res) => res.json())
       .then((data) => {

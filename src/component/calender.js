@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import {
   format,
   addDays,
+  addMonths,
   startOfMonth,
   startOfWeek,
   isSameMonth,
@@ -27,7 +28,7 @@ const Calendar = ({
       ? busOpStatus[selectedBus.bus_id]
       : "미운행"; // 웹소켓에서 수신 없으면 기본값 미운행
 
-  const API_BASE_URL = "http://104.197.230.228:8000";
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (selectedBus && selectedBus.bus_id) {
@@ -94,7 +95,6 @@ const Calendar = ({
     }
   };
 
-  // 부모에서 전달받은 closeCalendar 함수를 그대로 사용
   const handleCloseCalendar = () => {
     closeCalendar?.();
   };
@@ -146,11 +146,12 @@ const Calendar = ({
 
       <div className="calenderArticle">
         <div className="header">
-          <button onClick={() => setCurrentMonth(addDays(currentMonth, -31))}>
+          {/* 이전/다음 달 이동 시 addMonths 사용 */}
+          <button onClick={() => setCurrentMonth(addMonths(currentMonth, -1))}>
             &lt; 이전달
           </button>
           <div>{format(currentMonth, "yyyy년 MM월")}</div>
-          <button onClick={() => setCurrentMonth(addDays(currentMonth, 31))}>
+          <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
             다음달 &gt;
           </button>
         </div>
@@ -162,8 +163,12 @@ const Calendar = ({
           ))}
         </div>
         <div className="days">
+          {/* 달력 날짜 생성 시 addDays 사용 (42칸) */}
           {Array.from({ length: 42 }).map((_, index) => {
+            // 이번 달의 시작 주(일요일 기준)부터 42일을 순회
             const day = addDays(startOfWeek(startOfMonth(currentMonth)), index);
+
+            // 배차가 있는 날짜인지 확인
             const isDispatchDay =
               isSameMonth(day, currentMonth) &&
               dispatchDays.includes(day.getDate());

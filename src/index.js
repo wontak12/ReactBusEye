@@ -13,7 +13,7 @@ import KakaoMap from "./component/kakaomap.js";
 import Calendar from "./component/calender.js";
 import Login from "./component/login.js";
 import reportWebVitals from "./reportWebVitals";
-import { startAutoLogout } from "./services/authService";
+import { startAutoLogout, startTokenAutoRefresh } from "./services/authService";
 
 const AppContainer = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
@@ -120,11 +120,18 @@ const Root = () => {
     };
   }, []);
 
+  // 로그인 성공 시 호출 (Login 컴포넌트에서 onLoginSuccess prop을 통해)
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
     console.log("[Root] 로그인 성공, 토큰 유지");
     startAutoLogout();
+    // 여기서 토큰 자동 갱신 시작 (30분마다)
+    const refreshIntervalId = startTokenAutoRefresh();
+    // 필요 시 컴포넌트 unmount 시 정리
+    return () => clearInterval(refreshIntervalId);
   };
+
+  
 
   return isAuthenticated ? (
     <AppContainer />

@@ -46,7 +46,7 @@ const KakaoMap = forwardRef(({
 
   // buses 또는 busOpStatus 변경 시 updateMarkers 호출
   useEffect(() => {
-    console.log("[DEBUG] updateMarkers useEffect called. buses:", buses, "busOpStatus:", busOpStatus);
+    // console.log("[DEBUG] updateMarkers useEffect called. buses:", buses, "busOpStatus:", busOpStatus);
     updateMarkers(buses);
   }, [buses, busOpStatus]);
 
@@ -127,7 +127,7 @@ const KakaoMap = forwardRef(({
    */
   const connectWebSocket = async (useRefresh = false) => {
     const wsUrl = getWebSocketUrl(useRefresh);
-    console.log("WebSocket 연결 시도, useRefresh =", useRefresh, " URL:", wsUrl);
+    // console.log("WebSocket 연결 시도, useRefresh =", useRefresh, " URL:", wsUrl);
 
     if (socketRef.current) {
       console.log("기존 웹소켓 연결 종료");
@@ -161,31 +161,31 @@ const KakaoMap = forwardRef(({
         setIsConnected(true);
         
         setBuses((prev) => {
-          const combined = [...prev, ...data.filter(Boolean)];
-          const busMap = new Map();
-          combined.forEach((bus) => {
+          const newMap = new Map();
+        
+          [...prev, ...data].forEach((bus) => {
             if (!bus || !bus.bus_id) return;
+        
             const busId = bus.bus_id;
             const timestamp = new Date(bus.put_time).getTime();
-            if (!busMap.has(busId)) {
-              busMap.set(busId, { ...bus, put_time: timestamp });
-            } else {
-              const existing = busMap.get(busId);
-              // 만약 put_time이 더 크거나, 위도 또는 경도가 달라지면 업데이트
-              if (
-                timestamp > existing.put_time ||
-                bus.latitude !== existing.latitude ||
-                bus.longitude !== existing.longitude
-              ) {
-                busMap.set(busId, { ...bus, put_time: timestamp });
-              }
+        
+            const existing = newMap.get(busId);
+            if (!existing || timestamp > new Date(existing.put_time).getTime()) {
+              newMap.set(busId, { ...bus, put_time: timestamp });
             }
           });
-          const newBuses = Array.from(busMap.values());
-          console.log("[DEBUG] 업데이트 후 buses 상태:", newBuses);
-          return newBuses;
+        
+          const cleanList = Array.from(newMap.values());
+        
+          // ✅ 올바른 구조로 저장
+          localStorage.setItem("lastBusData", JSON.stringify(
+            Object.fromEntries(cleanList.map(bus => [bus.bus_id, bus]))
+          ));
+        
+          return cleanList;
         });
         
+
         // 버스 운행 상태 업데이트 (예: 각 버스 상태를 "운행"으로 업데이트)
         setBusOpStatus((prevStatus) => {
           const updated = { ...prevStatus };
@@ -215,7 +215,7 @@ const KakaoMap = forwardRef(({
   const updateMarkers = (busData) => {
     if (!mapRef.current) return;
   
-    console.log("[DEBUG] updateMarkers called with busData:", busData);
+    // console.log("[DEBUG] updateMarkers called with busData:", busData);
   
     // 1. 새 데이터에 존재하는 bus_id(문자열 형태)만 추출
     const newBusIds = new Set(busData.map((b) => String(b.bus_id)));
@@ -244,9 +244,9 @@ const KakaoMap = forwardRef(({
       // busOpStatus에 따른 상태 ("운행" 또는 "미운행")
       const finalStatus = busOpStatus[busIdStr] || "미운행";
       const pos = new window.kakao.maps.LatLng(latitude, longitude);
-      console.log(
-        `[DEBUG] Creating marker for bus_id: ${busIdStr} at (${latitude}, ${longitude}) with status: ${finalStatus}`
-      );
+      // console.log(
+      //   `[DEBUG] Creating marker for bus_id: ${busIdStr} at (${latitude}, ${longitude}) with status: ${finalStatus}`
+      // );
   
       // 강제로 기존 마커 제거 후 새로 생성
       if (markersRef.current[busIdStr]) {
@@ -467,7 +467,7 @@ const KakaoMap = forwardRef(({
     if (overlay && bus && bus.latitude && bus.longitude) {
       const pos = new window.kakao.maps.LatLng(bus.latitude, bus.longitude);
       overlay.setPosition(pos); // 오버레이 위치 갱신
-      mapRef.current.setCenter(pos); // (원하는 경우) 지도도 이동
+      mapRef.current.setCenter  (pos); // (원하는 경우) 지도도 이동
     }
   }, [buses, selectedBus]);
 

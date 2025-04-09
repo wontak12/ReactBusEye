@@ -14,10 +14,12 @@ function Login({ onLoginSuccess }) {
     const result = await authLogin(userId, password);
 
     if (result.success) {
+      console.log("성공", result)
       console.log("[Login] 로그인 성공");
       startAutoLogout();
       onLoginSuccess();
     } else {
+      console.log("에러", result)
       console.error("[Login] 로그인 실패:", result.error);
       setError("로그인 실패: " + result.error);
     }
